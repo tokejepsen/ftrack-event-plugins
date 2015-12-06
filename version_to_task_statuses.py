@@ -42,9 +42,9 @@ def callback(event):
                 try:
                     task.setStatus(task_status)
                 except Exception as e:
-                    print '%s status couldnt be set: %s' % (path, e)
+                    print '{0!s} status couldnt be set: {1!s}'.format(path, e)
                 else:
-                    print '%s updated to "%s"' % (path, task_status.get('name'))
+                    print '{0!s} updated to "{1!s}"'.format(path, task_status.get('name'))
 
 
 # Subscribe to events with the update topic.

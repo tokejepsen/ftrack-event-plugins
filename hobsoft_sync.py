@@ -85,7 +85,7 @@ def callback(event):
 
             sequence_name = task.getParent().getParent().getName()
             shot_name = 'c' + task.getParent().getName().split('c')[1]
-            filename = '%s%s.compositing.####.dpx' % (sequence_name,
+            filename = '{0!s}{1!s}.compositing.####.dpx'.format(sequence_name,
                                                                     shot_name)
             dst = os.path.join('B:\\', 'film', sequence_name, shot_name,
                                             'current', 'compositing', filename.upper())
@@ -107,12 +107,12 @@ def callback(event):
 
             path = task.getParent().getName() + '/'
             path += version.getAsset().getName() + ' '
-            path += 'v%s' % str(version.getVersion()).zfill(2)
+            path += 'v{0!s}'.format(str(version.getVersion()).zfill(2))
 
             # job data
             data = 'UserName=render.farm\n'
-            data += 'Name=%s Transcoding\n' % path
-            data += 'Frames=%s-%s\n' % (frame_start, frame_end)
+            data += 'Name={0!s} Transcoding\n'.format(path)
+            data += 'Frames={0!s}-{1!s}\n'.format(frame_start, frame_end)
             data += 'Group=draft\n'
             data += 'Pool=medium\n'
             data += 'Plugin=Draft\n'
@@ -127,10 +127,10 @@ def callback(event):
                 outfile.write(data)
 
             # plugin data
-            data = 'scriptFile=%s\n' % script
-            data += 'ScriptArg0=frameList=%s-%s\n' % (frame_start, frame_end)
-            data += 'ScriptArg1=outFile=%s\n' % dst
-            data += 'ScriptArg2=inFile=%s\n' % src
+            data = 'scriptFile={0!s}\n'.format(script)
+            data += 'ScriptArg0=frameList={0!s}-{1!s}\n'.format(frame_start, frame_end)
+            data += 'ScriptArg1=outFile={0!s}\n'.format(dst)
+            data += 'ScriptArg2=inFile={0!s}\n'.format(src)
 
             current_dir = tempfile.gettempdir()
             filename = 'plugin.txt'

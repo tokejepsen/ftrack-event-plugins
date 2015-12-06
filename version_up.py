@@ -45,7 +45,7 @@ def version_set(string, prefix, oldintval, newintval):
   # Replace all version strings with matching numbers
   for match in matches:
     # use expression instead of expr so 0 prefix does not make octal
-    fmt = "%%(#)0%dd" % (len(match) - 2)
+    fmt = "%(#)0{0:d}d".format((len(match) - 2))
     newfullvalue = match[0] + prefix + str(fmt % {"#": newintval})
     string = re.sub(match, newfullvalue, string)
   return string
@@ -62,7 +62,7 @@ def version_up(path):
         os.makedirs(os.path.dirname(new_path))
 
     if not os.path.exists(new_path):
-        print 'Copying: %s' % path
+        print 'Copying: {0!s}'.format(path)
         shutil.copy(path, new_path)
 
     (prefix, v) = version_get(path, 'v')
@@ -153,7 +153,7 @@ def callback(event):
                                         version_string = 'v' + str(new_version_number).zfill(3)
                                         new_name = version_string.join(new_path.split(version_string)[:-1]) + version_string + extension
                                         os.rename(new_path, new_name)
-                                        print 'Renaming to %s' % new_name
+                                        print 'Renaming to {0!s}'.format(new_name)
                                     else:
                                         [new_path, new_version_number] = version_up(path)
 
@@ -161,8 +161,8 @@ def callback(event):
                                     for p in task.getParents():
                                         path = p.get('name') + '/' + path
 
-                                    msg = "Version from %s" % int(version_number)
-                                    msg += " to %s on %s" % (int(new_version_number), path)
+                                    msg = "Version from {0!s}".format(int(version_number))
+                                    msg += " to {0!s} on {1!s}".format(int(new_version_number), path)
                                     print msg
                 except:
                     print traceback.format_exc()

@@ -19,7 +19,7 @@ class Thread(threading.Thread):
     def run(self):
 
         ftrack.Review.makeReviewable(self.version, self.path)
-        print 'uploaded: %s' % self.path
+        print 'uploaded: {0!s}'.format(self.path)
         self.version.publish()
 
 def callback(event):

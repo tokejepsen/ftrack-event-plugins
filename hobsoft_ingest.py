@@ -34,7 +34,7 @@ def callback(event):
                 status = utils.GetStatusByName('ready')
                 task = shot.createTask('painting', taskType=task_type,
                                         taskStatus=status)
-            print 'hobsoft ingest on %s' % task
+            print 'hobsoft ingest on {0!s}'.format(task)
 
 
 # Subscribe to events with the update topic.

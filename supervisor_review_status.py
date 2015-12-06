@@ -48,8 +48,8 @@ def callback(event):
 
                     path = task.getParent().getName() + '/'
                     path += version_latest.getAsset().getName() + ' '
-                    path += 'v%s' % str(version_latest.getVersion()).zfill(2)
-                    print 'Setting %s "img" to "Supervisor Review"' % path
+                    path += 'v{0!s}'.format(str(version_latest.getVersion()).zfill(2))
+                    print 'Setting {0!s} "img" to "Supervisor Review"'.format(path)
 
                 # setting movie
                 version_number = 0
@@ -66,8 +66,8 @@ def callback(event):
 
                     path = task.getParent().getName() + '/'
                     path += version_latest.getAsset().getName() + ' '
-                    path += 'v%s' % str(version_latest.getVersion()).zfill(2)
-                    print 'Setting %s "mov" to "Supervisor Review"' % path
+                    path += 'v{0!s}'.format(str(version_latest.getVersion()).zfill(2))
+                    print 'Setting {0!s} "mov" to "Supervisor Review"'.format(path)
 
 
 # Subscribe to events with the update topic.

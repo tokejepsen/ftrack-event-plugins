@@ -23,7 +23,7 @@ def callback(event):
             parent = task.getParent()
             if parent.get('thumbid') and not task.get('thumbid'):
                 task.set('thumbid', value=parent.get('thumbid'))
-                print 'Updated thumbnail on %s/%s' % (parent.getName(),
+                print 'Updated thumbnail on {0!s}/{1!s}'.format(parent.getName(),
                                                         task.getName())
 
 

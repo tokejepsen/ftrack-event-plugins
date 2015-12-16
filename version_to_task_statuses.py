@@ -23,6 +23,10 @@ def callback(event):
             except:
                 return
 
+            valid_types = ['img', 'mov']
+            if version.getAsset().getType().getShort() not in valid_types:
+                return
+
             task_status = utils.GetStatusByName(version_status.get('name').lower())
 
             # Filter to versions with status change to "render complete"

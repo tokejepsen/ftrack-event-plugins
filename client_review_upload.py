@@ -10,11 +10,10 @@ import utils
 
 class Thread(threading.Thread):
 
-    def __init__(self, version, path, log):
+    def __init__(self, version, path):
         threading.Thread.__init__(self)
         self.version = version
         self.path = path
-        self.log = log
 
     def run(self):
 
@@ -38,7 +37,7 @@ def callback(event):
             os.environ['LOGNAME'] = user.getUsername()
 
             path = version.getComponent().getFilesystemPath()
-            myclass = Thread(version, path, log)
+            myclass = Thread(version, path)
             myclass.start()
 
 # Subscribe to events with the update topic.

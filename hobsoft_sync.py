@@ -179,7 +179,8 @@ def callback(event):
             # plugin data
             path = dst.replace('####', '%04d') + '[<STARTFRAME>-<ENDFRAME>]'
             args = '{0} -scene <STARTFRAME> -depth 10 '.format(path)
-            args += '-define dpx:television.time.code=00:00:00:01'
+            args += '-define dpx:television.time.code=00:00:00:01 '
+            args += '-type TrueColor'
             data = 'Arguments={0} {1}\n'.format(args, path)
             path = r'K:\production\tools\image-magick\convert.exe'
             data += 'Executable={0}'.format(path)

@@ -5,7 +5,6 @@ path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'ftrack-api')
 sys.path.append(path)
 
 import ftrack
-import utils
 
 
 def callback(event):
@@ -65,7 +64,7 @@ def callback(event):
             for user in users:
                 value += user + ','
             try:
-                value = value [:-1]
+                value = value[:-1]
             except:
                 pass
             task.setMeta('assignees', value=value)

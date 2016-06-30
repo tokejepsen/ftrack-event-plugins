@@ -182,7 +182,7 @@ def callback(event):
             args += '-define dpx:television.time.code=00:00:00:01 '
             args += '-type TrueColor'
             data = 'Arguments={0} {1}\n'.format(args, path)
-            path = r'K:\production\tools\image-magick\convert.exe'
+            path = r'K:\development\tools\image-magick\convert.exe'
             data += 'Executable={0}'.format(path)
 
             current_dir = tempfile.gettempdir()

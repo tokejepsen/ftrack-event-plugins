@@ -23,7 +23,7 @@ def callback(event):
             except:
                 return
 
-            valid_types = ['img', 'mov']
+            valid_types = ['img', 'mov', 'cache', 'render']
             if version.getAsset().getType().getShort() not in valid_types:
                 return
 
@@ -33,6 +33,11 @@ def callback(event):
             if version_status.get('name').lower() == 'render complete':
 
                 task_status = utils.GetStatusByName('artist review')
+
+            # Filter to versions with status change to "render queued"
+            if version_status.get('name').lower() == 'render queued':
+
+                task_status = utils.GetStatusByName('render')
 
             # Proceed if the task status was set
             if task_status:

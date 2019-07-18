@@ -1,76 +1,99 @@
-import sys
-import os
-
-path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'ftrack-api')
-sys.path.append(path)
-
-import ftrack
+import ftrack_api
 
 
 def callback(event):
-    """ This plugin sets the task status from the version status update.
-    """
+    session = ftrack_api.Session()
+    for entity_data in event["data"]["entities"]:
 
-    for entity in event['data'].get('entities', []):
+        # Filter to tasks.
+        if entity_data["entityType"].lower() != "task":
+            continue
 
-        # Filter non-assetversions
-        if entity.get('entityType') == 'task' and entity['action'] == 'update':
+        if "statusid" not in entity_data["keys"]:
+            continue
 
-            if 'statusid' not in entity.get('keys'):
-                return
+        task = session.get("Task", entity_data["entityId"])
 
-            # Find task if it exists
-            task = None
-            try:
-                task = ftrack.Task(id=entity.get('entityId'))
-            except:
-                return
+        # Status assignees.
+        assignees = []
+        if task["metadata"].get("assignees"):
+            assignees = [
+                session.get("User", userid)
+                for userid in task["metadata"]["assignees"].split(",")
+            ]
 
-            # remove status assigned users
-            if task.getMeta('assignees'):
-                for userid in task.getMeta('assignees').split(','):
-                    try:
-                        task.unAssignUser(ftrack.User(userid))
-                    except:
-                        pass
+        # Get task users and remove status assigned users.
+        task_users = set()
+        status_appointments = []
+        for appointment in task["appointments"]:
+            resource = appointment["resource"]
 
-            # getting status named group
-            task_status_name = task.getStatus().get('name').lower()
+            # Filter to Users.
+            if not isinstance(resource, session.types["User"]):
+                continue
 
-            project = task.getParents()[-1]
-            status_group = None
-            for group in project.getAllocatedGroups():
-                if group.getSubgroups():
-                    if group.get('name').lower() == task_status_name:
-                        status_group = group
+            if resource in assignees:
+                status_appointments.append(appointment)
+                continue
 
-            users = []
-            if status_group:
+            task_users.add(resource)
 
-                for group in status_group.getSubgroups():
-                    task_type_name = task.getType().get('name').lower()
-                    if task_type_name == group.get('name').lower():
+        for appointment in status_appointments:
+            session.delete(appointment)
 
-                        # assigning new users
-                        for member in group.getMembers():
-                            try:
-                                task.assignUser(member)
-                                users.append(member.get('userid'))
-                            except:
-                                pass
+        # Getting status members.
+        project = session.get(
+            "Project", entity_data["parents"][-1]["entityId"]
+        )
+        status_users = set()
+        for allocation in project["allocations"]:
+            resource = allocation["resource"]
 
-            # storing new assignees
-            value = ''
-            for user in users:
-                value += user + ','
-            try:
-                value = value[:-1]
-            except:
-                pass
-            task.setMeta('assignees', value=value)
+            # Filter to groups.
+            if not isinstance(resource, session.types["Group"]):
+                continue
+
+            # Filter to groups named the same as the tasks status.
+            if resource["name"].lower() != task["status"]["name"].lower():
+                continue
+
+            for child in resource["children"]:
+                # Filter to groups.
+                if not isinstance(child, session.types["Group"]):
+                    continue
+
+                # Filter to groups named the same as the tasks type.
+                if child["name"].lower() != task["type"]["name"].lower():
+                    continue
+
+                # Collect all users from group.
+                for membership in child["memberships"]:
+                    status_users.add(membership["user"])
+
+        # Assign members to task.
+        assigned_users = []
+        for user in status_users:
+            if user in task_users:
+                continue
+
+            session.create(
+                "Appointment",
+                {
+                    "context": task,
+                    "resource": user,
+                    "type": "assignment"
+                }
+            )
+            assigned_users.append(user)
+
+        # Storing new assignees.
+        task["metadata"].update(
+            {"assignees": ",".join([user["id"] for user in assigned_users])}
+        )
+
+        session.commit()
 
 
-# Subscribe to events with the update topic.
-ftrack.setup()
-ftrack.EVENT_HUB.subscribe('topic=ftrack.update', callback)
-ftrack.EVENT_HUB.wait()
+session = ftrack_api.Session()
+session.event_hub.subscribe("topic=ftrack.update", callback)
+session.event_hub.wait()

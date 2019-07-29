@@ -14,6 +14,12 @@ def callback(event):
 
         task = session.get("Task", entity_data["entityId"])
 
+        hierarchy = []
+        for item in task['link']:
+            hierarchy.append(session.get(item['type'], item['id']))
+
+        hierarchy_path = "/".join([x["name"] for x in hierarchy])
+
         # Status assignees.
         assignees = []
         if task["metadata"].get("assignees"):
@@ -40,6 +46,13 @@ def callback(event):
 
         for appointment in status_appointments:
             session.delete(appointment)
+            print(
+                "Unassigning \"{} {}\" from task \"{}\"".format(
+                    appointment["resource"]["first_name"],
+                    appointment["resource"]["last_name"],
+                    hierarchy_path
+                )
+            )
 
         # Getting status members.
         project = session.get(
@@ -86,6 +99,12 @@ def callback(event):
             )
             assigned_users.append(user)
 
+            print(
+                "Assigning \"{} {}\" to task \"{}\"".format(
+                    user["first_name"], user["last_name"], hierarchy_path
+                )
+            )
+
         # Storing new assignees.
         task["metadata"].update(
             {"assignees": ",".join([user["id"] for user in assigned_users])}
@@ -94,6 +113,6 @@ def callback(event):
         session.commit()
 
 
-session = ftrack_api.Session()
+session = ftrack_api.Session(auto_connect_event_hub=True)
 session.event_hub.subscribe("topic=ftrack.update", callback)
 session.event_hub.wait()

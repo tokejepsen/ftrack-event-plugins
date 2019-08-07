@@ -2,7 +2,7 @@ import ftrack_api
 
 
 def callback(event):
-    session = ftrack_api.Session()
+    session = ftrack_api.Session(auto_connect_event_hub=False)
     for entity_data in event["data"]["entities"]:
 
         # Filter to tasks.

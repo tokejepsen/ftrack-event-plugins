@@ -14,6 +14,9 @@ def callback(event):
 
         task = session.get("Task", entity_data["entityId"])
 
+        if task is None:
+            continue
+
         hierarchy = []
         for item in task['link']:
             hierarchy.append(session.get(item['type'], item['id']))

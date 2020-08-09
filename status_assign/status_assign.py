@@ -73,6 +73,10 @@ def callback(event):
             if resource["name"].lower() != task["status"]["name"].lower():
                 continue
 
+            # Collect all users from status group.
+            for membership in resource["memberships"]:
+                status_users.add(membership["user"])
+
             for child in resource["children"]:
                 # Filter to groups.
                 if not isinstance(child, session.types["Group"]):
@@ -80,11 +84,9 @@ def callback(event):
 
                 # Filter to groups named the same as the tasks type.
                 if child["name"].lower() != task["type"]["name"].lower():
-                    continue
-
-                # Collect all users from group.
-                for membership in child["memberships"]:
-                    status_users.add(membership["user"])
+                    # Remove users not in task type status.
+                    for membership in child["memberships"]:
+                        status_users.remove(membership["user"])
 
         # Assign members to task.
         assigned_users = []

@@ -62,6 +62,7 @@ def callback(event):
             "Project", entity_data["parents"][-1]["entityId"]
         )
         status_users = set()
+        task_type_users = []
         for allocation in project["allocations"]:
             resource = allocation["resource"]
 
@@ -83,10 +84,19 @@ def callback(event):
                     continue
 
                 # Filter to groups named the same as the tasks type.
-                if child["name"].lower() != task["type"]["name"].lower():
+                if child["name"].lower() == task["type"]["name"].lower():
+                    for membership in child["memberships"]:
+                        task_type_users.append(membership["user"])
+                else:
                     # Remove users not in task type status.
                     for membership in child["memberships"]:
-                        status_users.remove(membership["user"])
+                        if membership["user"] in status_users:
+                            status_users.remove(membership["user"])
+
+        # Ensure tasks users are assigned.
+        for user in task_type_users:
+            if user not in status_users:
+                status_users.add(user)
 
         # Assign members to task.
         assigned_users = []
